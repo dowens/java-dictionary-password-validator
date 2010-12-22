@@ -130,13 +130,13 @@ public class DictionaryPasswordValidator {
 
         sBuilder.append("\n\n- Successfully populated the dictionary with ");
         sBuilder.append(this.totalWords);
-        sBuilder.append(" words.\n\n");
-        sBuilder.append("- The bit set size is set to: ");
+        sBuilder.append(" words.\n");
+        sBuilder.append("- The bit set is ");
         sBuilder.append(this.bitSetSize);
-        sBuilder.append(".\n\n");
+        sBuilder.append(" in size.\n");
         sBuilder.append("- It took: ");
         sBuilder.append(dFormat.format(((stopTime - startTime) * 0.001)));
-        sBuilder.append(" seconds to populate the bloom filter.\n\n");
+        sBuilder.append(" seconds to populate the bloom filter.\n");
         sBuilder.append("- The current false-positive rate for the bloom filter is: ");
         sBuilder.append(dFormat.format(100 * this.bloomFilter.getFalsePositiveProbability()));
         sBuilder.append("%\n\n");
