@@ -133,7 +133,9 @@ public class DictionaryPasswordValidator {
         sBuilder.append(" words.\n");
         sBuilder.append("- The bit set is ");
         sBuilder.append(this.bitSetSize);
-        sBuilder.append(" in size.\n");
+        sBuilder.append(" (");
+        sBuilder.append(((this.bitSetSize / 1024)) );
+        sBuilder.append("KB) in size.\n");
         sBuilder.append("- It took: ");
         sBuilder.append(dFormat.format(((stopTime - startTime) * 0.001)));
         sBuilder.append(" seconds to populate the bloom filter.\n");
