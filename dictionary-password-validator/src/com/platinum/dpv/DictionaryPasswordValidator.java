@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +32,7 @@ public class DictionaryPasswordValidator {
 
     // Singleton
     private static DictionaryPasswordValidator instance;
-    
+
     // Class-specific vars
     private BloomFilter bloomFilter = null;
     private int totalWords = 0;
@@ -241,7 +239,12 @@ public class DictionaryPasswordValidator {
             while ((strLine = bReader.readLine()) != null) {
 
                 if (strLine.length() >= MIN_WORD_CHAR_LENGTH) {
-                    bloomFilter.add(strLine.toLowerCase());
+                    try {
+                        bloomFilter.add(strLine.toLowerCase());
+                    } catch (UnsupportedEncodingException e) {
+                        // A badly formatted word... ignore
+                        Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.INFO, "Invalid character encoding on: " + strLine, e);
+                    }
                 }
             }
 
