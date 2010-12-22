@@ -14,10 +14,8 @@ package com.platinum.dpv.util;
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-
-
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,16 +36,17 @@ import java.util.Collection;
  * @author Magnus Skjegstad <magnus@skjegstad.com>
  */
 public class BloomFilter<E> implements Serializable {
+
+    private static final String charsetEncoding = "UTF-8";
+    private static Charset charset = Charset.forName(charsetEncoding); // encoding used for storing hash values as strings
     private BitSet bitset;
     private int bitSetSize;
     private int expectedNumberOfFilterElements; // expected (maximum) number of elements to be added
     private int numberOfAddedElements; // number of elements actually added to the Bloom filter
     private int k;
-
-    static Charset charset = Charset.forName("UTF-8"); // encoding used for storing hash values as strings
-
     static String hashName = "MD5"; // MD5 gives good enough accuracy in most circumstances. Change to SHA1 if it's needed
     static final MessageDigest digestFunction;
+
     static { // The digest method is reused between instances to provide higher entropy.
         MessageDigest tmp;
         try {
@@ -66,8 +65,8 @@ public class BloomFilter<E> implements Serializable {
      */
     public BloomFilter(int bitSetSize, int expectedNumberOfFilterElements) {
         this.expectedNumberOfFilterElements = expectedNumberOfFilterElements;
-        this.k = (int) Math.round((bitSetSize / expectedNumberOfFilterElements) *
-                Math.log(2.0));
+        this.k = (int) Math.round((bitSetSize / expectedNumberOfFilterElements)
+                * Math.log(2.0));
         bitset = new BitSet(bitSetSize);
         this.bitSetSize = bitSetSize;
         numberOfAddedElements = 0;
@@ -94,8 +93,18 @@ public class BloomFilter<E> implements Serializable {
      * @param charset specifies the encoding of the input data.
      * @return digest as long.
      */
-    public static long createHash(String val, Charset charset) {
-        return createHash(val.getBytes(charset));
+    public static long createUTF8Hash(String val) throws UnsupportedEncodingException {
+
+        long hash;
+        try {
+            // Faster Java 1.6 call
+            hash = createHash(val.getBytes(charset));
+        } catch (NoSuchMethodError e) {
+            // Slower Java 1.5 fallback
+            hash = createHash(val.getBytes(charsetEncoding));
+        }
+
+        return hash;
     }
 
     /**
@@ -104,8 +113,8 @@ public class BloomFilter<E> implements Serializable {
      * @param val specifies the input data. The encoding is expected to be UTF-8.
      * @return digest as long.
      */
-    public static long createHash(String val) {
-        return createHash(val, charset);
+    public static long createHash(String val) throws UnsupportedEncodingException {
+        return createUTF8Hash(val);
     }
 
     /**
@@ -143,7 +152,7 @@ public class BloomFilter<E> implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final BloomFilter<E> other = (BloomFilter<E>) obj;        
+        final BloomFilter<E> other = (BloomFilter<E>) obj;
         if (this.expectedNumberOfFilterElements != other.expectedNumberOfFilterElements) {
             return false;
         }
@@ -173,7 +182,6 @@ public class BloomFilter<E> implements Serializable {
         return hash;
     }
 
-
     /**
      * Calculates the expected probability of false positives based on
      * the number of expected filter elements and the size of the Bloom filter.
@@ -199,7 +207,7 @@ public class BloomFilter<E> implements Serializable {
     public double getFalsePositiveProbability(double numberOfElements) {
         // (1 - e^(-k * n / m)) ^ k
         return Math.pow((1 - Math.exp(-k * (double) numberOfElements
-                        / (double) bitSetSize)), k);
+                / (double) bitSetSize)), k);
 
     }
 
@@ -212,7 +220,6 @@ public class BloomFilter<E> implements Serializable {
     public double getFalsePositiveProbability() {
         return getFalsePositiveProbability(numberOfAddedElements);
     }
-
 
     /**
      * Returns the value chosen for K.<br />
@@ -240,24 +247,25 @@ public class BloomFilter<E> implements Serializable {
      *
      * @param element is an element to register in the Bloom filter.
      */
-    public void add(E element) {
-       long hash;
-       String valString = element.toString();
-       for (int x = 0; x < k; x++) {
-           hash = createHash(valString + Integer.toString(x));
-           hash = hash % (long)bitSetSize;
-           bitset.set(Math.abs((int)hash), true);
-       }
-       numberOfAddedElements ++;
+    public void add(E element) throws UnsupportedEncodingException {
+        long hash;
+        String valString = element.toString();
+        for (int x = 0; x < k; x++) {
+            hash = createHash(valString + Integer.toString(x));
+            hash = hash % (long) bitSetSize;
+            bitset.set(Math.abs((int) hash), true);
+        }
+        numberOfAddedElements++;
     }
 
     /**
      * Adds all elements from a Collection to the Bloom filter.
      * @param c Collection of elements.
      */
-    public void addAll(Collection<? extends E> c) {
-        for (E element : c)
+    public void addAll(Collection<? extends E> c) throws UnsupportedEncodingException {
+        for (E element : c) {
             add(element);
+        }
     }
 
     /**
@@ -268,16 +276,17 @@ public class BloomFilter<E> implements Serializable {
      * @param element element to check.
      * @return true if the element could have been inserted into the Bloom filter.
      */
-    public boolean contains(E element) {
-       long hash;
-       String valString = element.toString();
-       for (int x = 0; x < k; x++) {
-           hash = createHash(valString + Integer.toString(x));
-           hash = hash % (long)bitSetSize;
-           if (!bitset.get(Math.abs((int)hash)))
-               return false;
-       }
-       return true;
+    public boolean contains(E element) throws UnsupportedEncodingException {
+        long hash;
+        String valString = element.toString();
+        for (int x = 0; x < k; x++) {
+            hash = createHash(valString + Integer.toString(x));
+            hash = hash % (long) bitSetSize;
+            if (!bitset.get(Math.abs((int) hash))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -287,10 +296,12 @@ public class BloomFilter<E> implements Serializable {
      * @param c elements to check.
      * @return true if all the elements in c could have been inserted into the Bloom filter.
      */
-    public boolean containsAll(Collection<? extends E> c) {
-        for (E element : c)
-            if (!contains(element))
+    public boolean containsAll(Collection<? extends E> c) throws UnsupportedEncodingException {
+        for (E element : c) {
+            if (!contains(element)) {
                 return false;
+            }
+        }
         return true;
     }
 

@@ -11,6 +11,8 @@ package com.platinum.dpv;
  */
 public class DictionaryPasswordFileException extends Exception {
 
+    static final long serialVersionUID = -2323214234543521312L;
+
     public DictionaryPasswordFileException(Exception e) {
         super(e);
     }

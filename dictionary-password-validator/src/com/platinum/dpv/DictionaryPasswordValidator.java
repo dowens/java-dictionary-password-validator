@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -27,9 +28,8 @@ public class DictionaryPasswordValidator {
 
     // Config vars
     private static final float ACCURACY = 17f;     // 0.05% false positive rate
-    private static final String ABSOLUTE_DICTIONARY_DIRECTORY = "conf/dictionaries";
-    private static final String JAR_DICTIONARY_DIRECTORY = "dictionaries";
-    private static final String DICTIONARY_FILE_EXTENSION = ".dic";
+    private static final String JAR_DICTIONARY_FILE = "dictionaries/en_US.dic";
+    private static final String ABSOLUTE_DICTIONARY_FILE = "conf/" + JAR_DICTIONARY_FILE;
     private static final int MIN_WORD_CHAR_LENGTH = 4;
 
     // Singleton
@@ -40,13 +40,10 @@ public class DictionaryPasswordValidator {
     private int totalWords = 0;
     private int bitSetSize = 0;
     private Pattern characterPattern = null;
-    private File directoryFile = null;
-
 
     private DictionaryPasswordValidator() {
         // No code needed here...
     }
-
 
     /**
      * Grab the DictionaryPasswordValidator.
@@ -83,19 +80,6 @@ public class DictionaryPasswordValidator {
      * @throws DictionaryPasswordFileException
      */
     private void initalizeDictionary() throws DictionaryPasswordFileException {
-
-        // Grab the directory folder
-        this.directoryFile = new File(ABSOLUTE_DICTIONARY_DIRECTORY);
-        if (this.directoryFile == null || this.directoryFile.exists() == false) {
-            try {
-                URL url = this.getClass().getClassLoader().getResource(JAR_DICTIONARY_DIRECTORY);
-                this.directoryFile = new File(url.toURI());
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
-                throw new DictionaryPasswordFileException("URI parsing error trying to read directory", ex);
-            }
-        }
-
 
 
         // Count and calculate the bit set size
@@ -135,7 +119,7 @@ public class DictionaryPasswordValidator {
         sBuilder.append("- The bit set is ");
         sBuilder.append(this.bitSetSize);
         sBuilder.append(" (");
-        sBuilder.append(((this.bitSetSize / 1024)) );
+        sBuilder.append(((this.bitSetSize / 1024)));
         sBuilder.append("kb) in size.\n");
         sBuilder.append("- It took ");
         sBuilder.append(dFormat.format(((stopTime - startTime) * 0.001)));
@@ -162,65 +146,65 @@ public class DictionaryPasswordValidator {
         int total = 0;
 
 
-        File[] files = this.directoryFile.listFiles();
-        for (File file : files) {
+        try {
 
-            // Dictionary must end with ".dic"
-            if(file.getAbsolutePath().toLowerCase().endsWith(DICTIONARY_FILE_EXTENSION) == false) {
-                continue;
+            // Grab the dictionary file
+            File dictionaryFile = new File(ABSOLUTE_DICTIONARY_FILE);
+            if (dictionaryFile == null || dictionaryFile.exists() == false) {
+                fStream = this.getClass().getClassLoader().getResourceAsStream(JAR_DICTIONARY_FILE);
+            } else {
+                fStream = new FileInputStream(dictionaryFile);
             }
 
-            try {
 
-                fStream = new FileInputStream(file);
-                iStream = new InputStreamReader(fStream);
-                bReader = new BufferedReader(iStream);
-                String strLine = null;
+            iStream = new InputStreamReader(fStream);
+            bReader = new BufferedReader(iStream);
+            String strLine = null;
 
-                //Read File Line By Line
-                while ((strLine = bReader.readLine()) != null) {
+            //Read File Line By Line
+            while ((strLine = bReader.readLine()) != null) {
 
-                    if (strLine.length() > MIN_WORD_CHAR_LENGTH) {
-                        total++;
-                    }
+                if (strLine.length() > MIN_WORD_CHAR_LENGTH) {
+                    total++;
                 }
+            }
 
-            } catch (Exception ex) {
+        } catch (IOException ex) {
 
-                Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
-                throw new DictionaryPasswordFileException("Error reading file line by line", ex);
+            Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new DictionaryPasswordFileException("Error reading file line by line", ex);
 
-            } finally {
+        } finally {
 
-                // Close the input streams
-                if (bReader != null) {
-                    try {
-                        bReader.close();
-                    } catch (IOException e) {
-                        //TODO: Logger
-                        System.err.println("Error: " + e.getMessage());
-                    }
+            // Close the input streams
+            if (bReader != null) {
+                try {
+                    bReader.close();
+                } catch (IOException e) {
+                    //TODO: Logger
+                    System.err.println("Error: " + e.getMessage());
                 }
+            }
 
-                if (iStream != null) {
-                    try {
-                        iStream.close();
-                    } catch (IOException e) {
-                        //TODO: Logger
-                        System.err.println("Error: " + e.getMessage());
-                    }
+            if (iStream != null) {
+                try {
+                    iStream.close();
+                } catch (IOException e) {
+                    //TODO: Logger
+                    System.err.println("Error: " + e.getMessage());
                 }
+            }
 
-                if (fStream != null) {
-                    try {
-                        fStream.close();
-                    } catch (IOException e) {
-                        //TODO: Logger
-                        System.err.println("Error: " + e.getMessage());
-                    }
+            if (fStream != null) {
+                try {
+                    fStream.close();
+                } catch (IOException e) {
+                    //TODO: Logger
+                    System.err.println("Error: " + e.getMessage());
                 }
             }
         }
+
 
         return total;
 
@@ -238,62 +222,61 @@ public class DictionaryPasswordValidator {
         BufferedReader bReader = null;
 
 
-        File[] files = this.directoryFile.listFiles();
-        for (File file : files) {
+        try {
 
-            // Dictionary must end with ".dic"
-            if(file.getAbsolutePath().toLowerCase().endsWith(DICTIONARY_FILE_EXTENSION) == false) {
-                continue;
+            // Grab the dictionary file
+            File dictionaryFile = new File(ABSOLUTE_DICTIONARY_FILE);
+            if (dictionaryFile == null || dictionaryFile.exists() == false) {
+                fStream = this.getClass().getClassLoader().getResourceAsStream(JAR_DICTIONARY_FILE);
+            } else {
+                fStream = new FileInputStream(dictionaryFile);
             }
 
-            try {
 
-                fStream = new FileInputStream(file);
-                iStream = new InputStreamReader(fStream);
-                bReader = new BufferedReader(iStream);
-                String strLine = null;
+            iStream = new InputStreamReader(fStream);
+            bReader = new BufferedReader(iStream);
+            String strLine = null;
 
-                //Read File Line By Line
-                while ((strLine = bReader.readLine()) != null) {
+            //Read File Line By Line
+            while ((strLine = bReader.readLine()) != null) {
 
-                    if (strLine.length() >= MIN_WORD_CHAR_LENGTH) {
-                        bloomFilter.add(strLine.toLowerCase());
-                    }
+                if (strLine.length() >= MIN_WORD_CHAR_LENGTH) {
+                    bloomFilter.add(strLine.toLowerCase());
                 }
+            }
 
-            } catch (Exception ex) {
+        } catch (IOException ex) {
 
-                Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
-                throw new DictionaryPasswordFileException("Error reading file line by line", ex);
+            Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new DictionaryPasswordFileException("Error reading file line by line", ex);
 
-            } finally {
+        } finally {
 
-                // Close the input streams
-                if (bReader != null) {
-                    try {
-                        bReader.close();
-                    } catch (IOException e) {
-                        //TODO: Logger
-                        System.err.println("Error: " + e.getMessage());
-                    }
+            // Close the input streams
+            if (bReader != null) {
+                try {
+                    bReader.close();
+                } catch (IOException e) {
+                    //TODO: Logger
+                    System.err.println("Error: " + e.getMessage());
                 }
+            }
 
-                if (iStream != null) {
-                    try {
-                        iStream.close();
-                    } catch (IOException e) {
-                        //TODO: Logger
-                        System.err.println("Error: " + e.getMessage());
-                    }
+            if (iStream != null) {
+                try {
+                    iStream.close();
+                } catch (IOException e) {
+                    //TODO: Logger
+                    System.err.println("Error: " + e.getMessage());
                 }
+            }
 
-                if (fStream != null) {
-                    try {
-                        fStream.close();
-                    } catch (IOException e) {
-                        //TODO: Logger
-                        System.err.println("Error: " + e.getMessage());
-                    }
+            if (fStream != null) {
+                try {
+                    fStream.close();
+                } catch (IOException e) {
+                    //TODO: Logger
+                    System.err.println("Error: " + e.getMessage());
                 }
             }
         }
@@ -306,7 +289,12 @@ public class DictionaryPasswordValidator {
      * @return true/false
      */
     public boolean isDictionaryWord(String word) {
-        return this.bloomFilter.contains(word.toLowerCase());
+        try {
+            return this.bloomFilter.contains(word.toLowerCase());
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
     }
 
     /**
@@ -341,8 +329,12 @@ public class DictionaryPasswordValidator {
             while ((position + strWidth) <= pwLength) {
 
                 compareStr = pwCharsOnly.substring(position, (position + strWidth));
-                if (this.bloomFilter.contains(compareStr) == true) {
-                    return true;
+                try {
+                    if (this.bloomFilter.contains(compareStr) == true) {
+                        return true;
+                    }
+                } catch (UnsupportedEncodingException ex) {
+                    Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
                 // Increment the position until we reach the end of pwCharsOnly
