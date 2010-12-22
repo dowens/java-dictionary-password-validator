@@ -128,7 +128,8 @@ public class DictionaryPasswordValidator {
 
         DecimalFormat dFormat = new DecimalFormat("#.##");
 
-        sBuilder.append("\n\n- Successfully populated the dictionary with ");
+        sBuilder.append("\n\nDictionaryPasswordValidator:\n");
+        sBuilder.append("- Successfully populated the bloom filter with ");
         sBuilder.append(this.totalWords);
         sBuilder.append(" words.\n");
         sBuilder.append("- The bit set is ");
@@ -136,7 +137,7 @@ public class DictionaryPasswordValidator {
         sBuilder.append(" (");
         sBuilder.append(((this.bitSetSize / 1024)) );
         sBuilder.append("KB) in size.\n");
-        sBuilder.append("- It took: ");
+        sBuilder.append("- It took ");
         sBuilder.append(dFormat.format(((stopTime - startTime) * 0.001)));
         sBuilder.append(" seconds to populate the bloom filter.\n");
         sBuilder.append("- The current false-positive rate for the bloom filter is: ");
