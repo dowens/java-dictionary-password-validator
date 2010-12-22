@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.platinum.pdv.test;
+package com.platinum.dpv.test;
 
-import com.platinum.pdv.DictionaryPasswordFileException;
-import com.platinum.pdv.DictionaryPasswordValidator;
+import com.platinum.dpv.DictionaryPasswordFileException;
+import com.platinum.dpv.DictionaryPasswordValidator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;

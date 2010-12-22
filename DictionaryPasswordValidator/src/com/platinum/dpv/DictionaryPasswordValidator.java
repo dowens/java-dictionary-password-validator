@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.platinum.pdv;
+package com.platinum.dpv;
 
-import com.platinum.pdv.util.BloomFilter;
+import com.platinum.dpv.util.BloomFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
