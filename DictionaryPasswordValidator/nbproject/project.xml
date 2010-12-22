@@ -6,6 +6,7 @@
             <name>DictionaryPasswordValidator</name>
             <source-roots>
                 <root id="src.dir"/>
+                <root id="src.conf.dir" name="Configuration Files"/>
             </source-roots>
             <test-roots>
                 <root id="test.src.dir"/>

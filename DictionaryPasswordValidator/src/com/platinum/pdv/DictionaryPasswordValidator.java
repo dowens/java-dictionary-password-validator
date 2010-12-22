@@ -27,7 +27,9 @@ public class DictionaryPasswordValidator {
 
     // Config vars
     private static final float ACCURACY = 17f;     // 0.05% false positive rate
-    private static final String DICTIONARY_DIRECTORY = "conf/dictionaries";
+    private static final String ABSOLUTE_DICTIONARY_DIRECTORY = "conf/dictionaries";
+    private static final String JAR_DICTIONARY_DIRECTORY = "dictionaries";
+    private static final String DICTIONARY_FILE_EXTENSION = ".dic";
     private static final int MIN_WORD_CHAR_LENGTH = 4;
 
     // Singleton
@@ -83,10 +85,10 @@ public class DictionaryPasswordValidator {
     private void initalizeDictionary() throws DictionaryPasswordFileException {
 
         // Grab the directory folder
-        this.directoryFile = new File(DICTIONARY_DIRECTORY);
-        if (this.directoryFile == null) {
+        this.directoryFile = new File(ABSOLUTE_DICTIONARY_DIRECTORY);
+        if (this.directoryFile == null || this.directoryFile.exists() == false) {
             try {
-                URL url = this.getClass().getClassLoader().getResource(DICTIONARY_DIRECTORY);
+                URL url = this.getClass().getClassLoader().getResource(JAR_DICTIONARY_DIRECTORY);
                 this.directoryFile = new File(url.toURI());
             } catch (URISyntaxException ex) {
                 Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
@@ -159,6 +161,12 @@ public class DictionaryPasswordValidator {
 
         File[] files = this.directoryFile.listFiles();
         for (File file : files) {
+
+            // Dictionary must end with ".dic"
+            if(file.getAbsolutePath().toLowerCase().endsWith(DICTIONARY_FILE_EXTENSION) == false) {
+                continue;
+            }
+
             try {
 
                 fStream = new FileInputStream(file);
@@ -229,6 +237,12 @@ public class DictionaryPasswordValidator {
 
         File[] files = this.directoryFile.listFiles();
         for (File file : files) {
+
+            // Dictionary must end with ".dic"
+            if(file.getAbsolutePath().toLowerCase().endsWith(DICTIONARY_FILE_EXTENSION) == false) {
+                continue;
+            }
+
             try {
 
                 fStream = new FileInputStream(file);
