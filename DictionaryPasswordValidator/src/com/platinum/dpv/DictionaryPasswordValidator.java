@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.platinum.dpv;
 
 import com.platinum.dpv.util.BloomFilter;
@@ -21,6 +17,10 @@ import java.util.regex.Pattern;
 
 /**
  * A singleton class which validates if a password uses dictionary words.
+ * It also provides a way to look up dictionary words for validity.
+ *
+ * License: Apache 2.0
+ *
  * @author jlucier
  */
 public class DictionaryPasswordValidator {

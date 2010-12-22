@@ -1,12 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.platinum.dpv;
 
 /**
+ * DictionaryPasswordFileException -- An exception occurred while trying
+ * to read the dictionary files in the lib.
+ *
+ * License: Apache 2.0
  *
  * @author jlucier
+ *
  */
 public class DictionaryPasswordFileException extends Exception {
 
