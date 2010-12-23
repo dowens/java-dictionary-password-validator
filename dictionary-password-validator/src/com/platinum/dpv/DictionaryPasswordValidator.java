@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 public class DictionaryPasswordValidator {
 
     // Config vars
-    private static float ACCURACY = 17f;     // 0.05% false positive rate
-    private static int MIN_WORD_CHAR_LENGTH = 4;
+    private static float accuracy = 17f;     // 0.05% false positive rate
+    private static int minWordCharLength = 4;
     private static final String JAR_DICTIONARY_FILE = "dictionaries/en_US.dic";
     private static final String ABSOLUTE_DICTIONARY_FILE = "conf/" + JAR_DICTIONARY_FILE;
 
@@ -51,10 +51,10 @@ public class DictionaryPasswordValidator {
      * @param minWordCharLength
      * @throws DictionaryPasswordConfigException
      */
-    public static synchronized void configure(float accuracy, int minWordCharLength) throws DictionaryPasswordConfigException {
+    public static synchronized void configure(float newAccuracy, int newMinWordCharLength) throws DictionaryPasswordConfigException {
         if(instance != null) {
-            ACCURACY = accuracy;
-            MIN_WORD_CHAR_LENGTH = minWordCharLength;
+            accuracy = newAccuracy;
+            minWordCharLength = newMinWordCharLength;
         } else {
             throw new DictionaryPasswordConfigException("Singleton has already been initialized.");
         }
@@ -99,7 +99,7 @@ public class DictionaryPasswordValidator {
 
         // Count and calculate the bit set size
         this.totalWords = countWords();
-        this.bitSetSize = (int) (ACCURACY * this.totalWords);
+        this.bitSetSize = (int) (accuracy * this.totalWords);
 
         // Construct our Bloom Filter
         this.bloomFilter = new BloomFilter(this.bitSetSize, this.totalWords);
@@ -179,7 +179,7 @@ public class DictionaryPasswordValidator {
             //Read File Line By Line
             while ((strLine = bReader.readLine()) != null) {
 
-                if (strLine.length() > MIN_WORD_CHAR_LENGTH) {
+                if (strLine.length() > minWordCharLength) {
                     total++;
                 }
             }
@@ -255,7 +255,7 @@ public class DictionaryPasswordValidator {
             //Read File Line By Line
             while ((strLine = bReader.readLine()) != null) {
 
-                if (strLine.length() >= MIN_WORD_CHAR_LENGTH) {
+                if (strLine.length() >= minWordCharLength) {
                     try {
                         bloomFilter.add(strLine.toLowerCase());
                     } catch (UnsupportedEncodingException e) {
@@ -339,7 +339,7 @@ public class DictionaryPasswordValidator {
         // the length of pwCharsOnly
 
         int pwLength = pwCharsOnly.length();
-        int strWidth = MIN_WORD_CHAR_LENGTH;
+        int strWidth = minWordCharLength;
         int position = 0;
         String compareStr = null;
         while (strWidth < pwLength) {
