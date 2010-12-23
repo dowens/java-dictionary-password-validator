@@ -25,10 +25,10 @@ import java.util.regex.Pattern;
 public class DictionaryPasswordValidator {
 
     // Config vars
-    private static final float ACCURACY = 17f;     // 0.05% false positive rate
+    private static float ACCURACY = 17f;     // 0.05% false positive rate
+    private static int MIN_WORD_CHAR_LENGTH = 4;
     private static final String JAR_DICTIONARY_FILE = "dictionaries/en_US.dic";
     private static final String ABSOLUTE_DICTIONARY_FILE = "conf/" + JAR_DICTIONARY_FILE;
-    private static final int MIN_WORD_CHAR_LENGTH = 4;
 
     // Singleton
     private static DictionaryPasswordValidator instance;
@@ -41,6 +41,23 @@ public class DictionaryPasswordValidator {
 
     private DictionaryPasswordValidator() {
         // No code needed here...
+    }
+
+    /**
+     * Lets you configure the class's values prior to creating the singleton instance
+     * This isn't exactly the best way to do this.
+     *
+     * @param accuracy
+     * @param minWordCharLength
+     * @throws DictionaryPasswordConfigException
+     */
+    public static synchronized void configure(float accuracy, int minWordCharLength) throws DictionaryPasswordConfigException {
+        if(instance != null) {
+            ACCURACY = accuracy;
+            MIN_WORD_CHAR_LENGTH = minWordCharLength;
+        } else {
+            throw new DictionaryPasswordConfigException("Singleton has already been initialized.");
+        }
     }
 
     /**
