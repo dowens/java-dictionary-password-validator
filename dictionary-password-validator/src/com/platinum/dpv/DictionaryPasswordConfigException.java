@@ -1,7 +1,7 @@
 package com.platinum.dpv;
 
 /**
- * DictionaryPasswordFileException -- An exception occurred while trying
+ * DictionaryPasswordConfigException -- An exception occurred while trying
  * to read the dictionary files in the lib.
  *
  * License: Apache 2.0
