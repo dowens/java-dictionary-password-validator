@@ -52,7 +52,7 @@ public class DictionaryPasswordValidator {
      * @throws DictionaryPasswordConfigException
      */
     public static synchronized void configure(float newAccuracy, int newMinWordCharLength) throws DictionaryPasswordConfigException {
-        if(instance != null) {
+        if(instance == null) {
             accuracy = newAccuracy;
             minWordCharLength = newMinWordCharLength;
         } else {
