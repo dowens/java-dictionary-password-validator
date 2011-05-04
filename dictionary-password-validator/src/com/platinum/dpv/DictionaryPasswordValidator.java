@@ -1,6 +1,6 @@
 package com.platinum.dpv;
 
-import com.platinum.dpv.util.BloomFilter;
+import com.skjegstad.utils.BloomFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,10 +29,8 @@ public class DictionaryPasswordValidator {
     private static int minWordCharLength = 4;
     private static final String JAR_DICTIONARY_FILE = "dictionaries/en_US.dic";
     private static final String ABSOLUTE_DICTIONARY_FILE = "conf/" + JAR_DICTIONARY_FILE;
-
     // Singleton
     private static DictionaryPasswordValidator instance;
-
     // Class-specific vars
     private BloomFilter bloomFilter = null;
     private int totalWords = 0;
@@ -52,7 +50,7 @@ public class DictionaryPasswordValidator {
      * @throws DictionaryPasswordConfigException
      */
     public static synchronized void configure(float newAccuracy, int newMinWordCharLength) throws DictionaryPasswordConfigException {
-        if(instance == null) {
+        if (instance == null) {
             accuracy = newAccuracy;
             minWordCharLength = newMinWordCharLength;
         } else {
@@ -256,12 +254,8 @@ public class DictionaryPasswordValidator {
             while ((strLine = bReader.readLine()) != null) {
 
                 if (strLine.length() >= minWordCharLength) {
-                    try {
-                        bloomFilter.add(strLine.toLowerCase());
-                    } catch (UnsupportedEncodingException e) {
-                        // A badly formatted word... ignore
-                        Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.INFO, "Invalid character encoding on: " + strLine, e);
-                    }
+                    bloomFilter.add(strLine.toLowerCase());
+
                 }
             }
 
@@ -309,12 +303,7 @@ public class DictionaryPasswordValidator {
      * @return true/false
      */
     public boolean isDictionaryWord(String word) {
-        try {
-            return this.bloomFilter.contains(word.toLowerCase());
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
+        return this.bloomFilter.contains(word.toLowerCase());
     }
 
     /**
@@ -349,12 +338,8 @@ public class DictionaryPasswordValidator {
             while ((position + strWidth) <= pwLength) {
 
                 compareStr = pwCharsOnly.substring(position, (position + strWidth));
-                try {
-                    if (this.bloomFilter.contains(compareStr) == true) {
-                        return true;
-                    }
-                } catch (UnsupportedEncodingException ex) {
-                    Logger.getLogger(DictionaryPasswordValidator.class.getName()).log(Level.SEVERE, null, ex);
+                if (this.bloomFilter.contains(compareStr) == true) {
+                    return true;
                 }
 
                 // Increment the position until we reach the end of pwCharsOnly
